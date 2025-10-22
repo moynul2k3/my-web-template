@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  db:
+    image: mariadb:10.11
+    container_name: mysql-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: Biko_db2k25
+      MYSQL_DATABASE: biko_db
+      MYSQL_USER: biko_db
+      MYSQL_PASSWORD: Biko_db2k25
+    ports:
+      - "3306:3306"   # Expose MariaDB port
+    volumes:
+      - db_data:/var/lib/mysql
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend-api
+    env_file:
+      - ./backend/.env      # Mount .env at runtime
+    ports:
+      - "8000:8000"
+    volumes:
+      - backend_media:/app/media  # Persist media uploads
+    restart: always
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    env_file:
+      - ./frontend/.env.local  # Optional frontend env file
+    ports:
+      - "3000:3000"
+    restart: always
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
+  backend_media:

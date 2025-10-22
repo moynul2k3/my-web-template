@@ -1,0 +1,40 @@
+version: '3.9'
+
+services:
+  db:
+    ports:
+      - "3307:3306"   # override default 3306 mapping
+    environment:
+      MYSQL_ROOT_PASSWORD: Biko_db2k25
+      MYSQL_DATABASE: biko_db
+      MYSQL_USER: biko_db
+      MYSQL_PASSWORD: Biko_db2k25
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend-api
+    env_file:
+      - ./backend/.env
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./frontend:/app
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
